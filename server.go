@@ -51,5 +51,6 @@ func (p *parm) server() {
 
 		// 転送速度計測結果
 		p.log(fmt.Sprintf("transrate: %dKbyte, time: %.2fsec, speed: %.2fKbps", kbyte, sec, kbps))
+		p.record(kbps)
 	}
 }

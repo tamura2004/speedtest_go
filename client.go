@@ -62,5 +62,6 @@ func (p *parm) connect() {
 
 	// 転送サイズ、レート記録
 	p.log(fmt.Sprintf("transrate: %.2fKbyte, time: %.2fsec, speed: %.2fKbps", kbyte, sec, kbps))
+	p.record(kbps)
 
 }

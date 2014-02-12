@@ -15,6 +15,7 @@ type parm struct {
 	repeat   int    //測定回数[回]
 	wait     int    //測定間隔[秒]
 	file     string //ログファイル名
+	csv      string //速度記録ファイル名
 }
 
 // 起動オプションの読み込み
@@ -27,5 +28,6 @@ func (p *parm) init() {
 	flag.IntVar(&p.repeat, "r", 3, "繰り返し回数")
 	flag.IntVar(&p.wait, "w", 3, "測定間隔[秒]")
 	flag.StringVar(&p.file, "f", "text.log", "ログファイル名")
+	flag.StringVar(&p.csv, "v", "record.csv", "ログファイル名")
 	flag.Parse()
 }
