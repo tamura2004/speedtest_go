@@ -15,10 +15,3 @@ func main() {
 		panic("-s オプションか -c オプションを指定して下さい")
 	}
 }
-
-// 共通エラー処理(手抜き)
-func handle(err interface{}) {
-	if err != nil {
-		panic(err)
-	}
-}

@@ -5,42 +5,37 @@ import (
 	"fmt"
 	//"io/ioutil"
 	"net"
-	//"time"
+	"time"
 )
 
 // クライアント計測処理
 func (p *parm) client() {
 
-	//// 指定回数繰り返し[デフォルト3回]
-	//for i := 0; i < p.repeat; i++ {
+	// 指定回数繰り返し
+	for i := 0; i < p.repeat; i++ {
 
-	//	// サーバ接続処理
-	//	p.connect()
+		// サーバ接続処理
+		p.connect()
 
-	//	// 指定時間待ち[デフォルト10秒]
-	//	time.Sleep(time.Duration(p.wait) * time.Second)
-	//}
-	//}
+		// 指定時間待ち
+		time.Sleep(time.Duration(p.wait) * time.Second)
+	}
+}
 
-	//// サーバ接続および転送速度計測
-	//func (p *parm) connect() {
+//// サーバ接続および転送速度計測
+func (p *parm) connect() {
 
-	// 接続urlを編集
-	//url := "http://" + p.host + ":" + p.port + "/speed"
+	// 接続アドレス生成
 	addr, err := net.ResolveUDPAddr("udp", p.host+":"+p.port)
-	handle(err)
+	p.handle(err, "接続アドレス生成")
 
+	// ソケット取得
 	conn, err := net.DialUDP("udp", nil, addr)
-	handle(err)
+	p.handle(err, "ソケット取得")
 	defer conn.Close()
 
 	// 開始ログ
 	p.log("start connecting")
-
-	// 接続
-	//res, err := http.Get(url)
-	//handle(err)
-	//defer res.Body.Close()
 
 	// 転送サイズ
 	kbyte := float64(p.length)
@@ -48,17 +43,18 @@ func (p *parm) client() {
 	// 転送レートを計測[秒]
 	buf := make([]byte, 1024)
 	sec := p.benchmark(func() {
-		conn.Write([]byte(fmt.Sprintf("%d", p.length)))
+		// 転送サイズ指定電文送信
+		_, err := conn.Write([]byte(fmt.Sprintf("%d", p.length)))
+		p.handle(err, "転送サイズ指定電文送信")
+
+		// 終了電文受信まで1KBづつ転送
 		for {
 			n, err := conn.Read(buf)
-			handle(err)
+			p.handle(err, "1KB受信")
 			if string(buf[:n]) == "end" {
 				break
 			}
 		}
-		//body, err := ioutil.ReadAll(res.Body)
-		//handle(err)
-		//kbyte = float64(len(body)) / 1024
 	})
 
 	// 転送レート計算

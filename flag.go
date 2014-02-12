@@ -21,11 +21,11 @@ type parm struct {
 func (p *parm) init() {
 	flag.BoolVar(&p.isServer, "s", false, "サーバとして起動")
 	flag.BoolVar(&p.isClient, "c", false, "クライアントとして起動")
-	flag.StringVar(&p.host, "h", "localhost", "ホスト名")
+	flag.StringVar(&p.host, "h", "", "ホスト名")
 	flag.StringVar(&p.port, "p", "7777", "ポート番号")
 	flag.IntVar(&p.length, "l", 500, "転送データサイズ[Kbyte]")
 	flag.IntVar(&p.repeat, "r", 3, "繰り返し回数")
-	flag.IntVar(&p.wait, "w", 10, "測定間隔[秒]")
+	flag.IntVar(&p.wait, "w", 3, "測定間隔[秒]")
 	flag.StringVar(&p.file, "f", "text.log", "ログファイル名")
 	flag.Parse()
 }

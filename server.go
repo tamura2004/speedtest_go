@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-// ｈｔｔｐサーバ処理
+// udpサーバ処理
 func (p *parm) server() {
 
 	// 開始メッセージ
@@ -15,11 +15,11 @@ func (p *parm) server() {
 
 	// アドレス設定
 	addr, err := net.ResolveUDPAddr("udp", p.host+":"+p.port)
-	handle(err)
+	p.handle(err, "アドレス設定")
 
 	// 接続待ち設定
 	conn, err := net.ListenUDP("udp", addr)
-	handle(err)
+	p.handle(err, "接続待ち設定")
 	defer conn.Close()
 
 	// サーバ読み込み
@@ -27,11 +27,11 @@ func (p *parm) server() {
 	for {
 		// 読み込み
 		n, remote, err := conn.ReadFromUDP(buf)
-		handle(err)
+		p.handle(err, "読み込み")
 
 		// 受信データを送信データサイズ[Kbyte]に変換
 		kbyte, err := strconv.Atoi(string(buf[:n]))
-		handle(err)
+		p.handle(err, "受信データを送信データサイズ[Kbyte]に変換")
 
 		// 返信用1Kbyteデータ
 		s := []byte(random(1024))
@@ -39,9 +39,11 @@ func (p *parm) server() {
 		// データ転送時間[秒 float64]を計測
 		sec := p.benchmark(func() {
 			for i := 0; i < kbyte; i++ {
-				conn.WriteToUDP(s, remote)
+				_, err := conn.WriteToUDP(s, remote)
+				p.handle(err, "1Kbyteデータ送信")
 			}
-			conn.WriteToUDP([]byte("end"), remote)
+			_, err := conn.WriteToUDP([]byte("end"), remote)
+			p.handle(err, "end送信")
 		})
 
 		// 転送速度を計算
