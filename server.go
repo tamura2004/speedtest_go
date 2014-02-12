@@ -3,40 +3,51 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"net"
+	"strconv"
 )
 
 // ｈｔｔｐサーバ処理
 func (p *parm) server() {
 
 	// 開始メッセージ
-	p.log(fmt.Sprintf("start server. listening port %s.", p.port))
+	p.log(fmt.Sprintf("start server. listening udp port %s.", p.port))
 
-	// topページのリクエスト処理
-	http.HandleFunc("/speed", func(w http.ResponseWriter, r *http.Request) {
+	// アドレス設定
+	addr, err := net.ResolveUDPAddr("udp", p.host+":"+p.port)
+	handle(err)
 
-		// 接続情報を出力
-		p.log(fmt.Sprintf("%s %s from %s", r.Method, r.RequestURI, r.RemoteAddr))
+	// 接続待ち設定
+	conn, err := net.ListenUDP("udp", addr)
+	handle(err)
+	defer conn.Close()
 
-		// length[Kbyte]の文字列を生成
-		msg := random(p.length * 1024)
+	// サーバ読み込み
+	buf := make([]byte, 1024)
+	for {
+		// 読み込み
+		n, remote, err := conn.ReadFromUDP(buf)
+		handle(err)
+
+		// 受信データを送信データサイズ[Kbyte]に変換
+		kbyte, err := strconv.Atoi(string(buf[:n]))
+		handle(err)
+
+		// 返信用1Kbyteデータ
+		s := []byte(random(1024))
 
 		// データ転送時間[秒 float64]を計測
 		sec := p.benchmark(func() {
-			fmt.Fprint(w, msg)
+			for i := 0; i < kbyte; i++ {
+				conn.WriteToUDP(s, remote)
+			}
+			conn.WriteToUDP([]byte("end"), remote)
 		})
 
 		// 転送速度を計算
-		kbps := float64(p.length*1024*8) / sec / 1000
+		kbps := float64(kbyte*1024*8) / sec / 1000
 
 		// 転送速度計測結果
-		p.log(fmt.Sprintf("transrate: %dKbyte, time: %.2fsec, speed: %.2fKbps", p.length, sec, kbps))
-
-	})
-
-	// 指定ポートでListen
-	err := http.ListenAndServe(":"+p.port, nil)
-
-	// エラー処理
-	handle(err)
+		p.log(fmt.Sprintf("transrate: %dKbyte, time: %.2fsec, speed: %.2fKbps", kbyte, sec, kbps))
+	}
 }

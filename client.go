@@ -3,47 +3,62 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"time"
+	//"io/ioutil"
+	"net"
+	//"time"
 )
 
 // クライアント計測処理
 func (p *parm) client() {
 
-	// 指定回数繰り返し[デフォルト3回]
-	for i := 0; i < p.repeat; i++ {
+	//// 指定回数繰り返し[デフォルト3回]
+	//for i := 0; i < p.repeat; i++ {
 
-		// サーバ接続処理
-		p.connect()
+	//	// サーバ接続処理
+	//	p.connect()
 
-		// 指定時間待ち[デフォルト10秒]
-		time.Sleep(time.Duration(p.wait) * time.Second)
-	}
-}
+	//	// 指定時間待ち[デフォルト10秒]
+	//	time.Sleep(time.Duration(p.wait) * time.Second)
+	//}
+	//}
 
-// サーバ接続および転送速度計測
-func (p *parm) connect() {
+	//// サーバ接続および転送速度計測
+	//func (p *parm) connect() {
 
 	// 接続urlを編集
-	url := "http://" + p.host + ":" + p.port + "/speed"
+	//url := "http://" + p.host + ":" + p.port + "/speed"
+	addr, err := net.ResolveUDPAddr("udp", p.host+":"+p.port)
+	handle(err)
+
+	conn, err := net.DialUDP("udp", nil, addr)
+	handle(err)
+	defer conn.Close()
 
 	// 開始ログ
-	p.log("start connecting to " + url)
+	p.log("start connecting")
 
 	// 接続
-	res, err := http.Get(url)
-	handle(err)
-	defer res.Body.Close()
+	//res, err := http.Get(url)
+	//handle(err)
+	//defer res.Body.Close()
 
 	// 転送サイズ
-	var kbyte float64
+	kbyte := float64(p.length)
 
 	// 転送レートを計測[秒]
+	buf := make([]byte, 1024)
 	sec := p.benchmark(func() {
-		body, err := ioutil.ReadAll(res.Body)
-		handle(err)
-		kbyte = float64(len(body)) / 1024
+		conn.Write([]byte(fmt.Sprintf("%d", p.length)))
+		for {
+			n, err := conn.Read(buf)
+			handle(err)
+			if string(buf[:n]) == "end" {
+				break
+			}
+		}
+		//body, err := ioutil.ReadAll(res.Body)
+		//handle(err)
+		//kbyte = float64(len(body)) / 1024
 	})
 
 	// 転送レート計算
