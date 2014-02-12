@@ -29,7 +29,6 @@ func (p *parm) log(msg string) {
 	// ログファイルとコンソールにメッセージ書き込み
 	fmt.Fprintln(fh, t+msg)
 	fmt.Println(t + msg)
-	fmt.Println(msg)
 }
 
 // ファイルがあれば追記モードで開く。なければ新規作成。
