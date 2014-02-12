@@ -40,7 +40,7 @@ func (p *parm) server() {
 		sec := p.benchmark(func() {
 			for i := 0; i < kbyte; i++ {
 				_, err := conn.WriteToUDP(s, remote)
-				p.handle(err, "1Kbyteデータ送信")
+				p.handle(err, "")
 			}
 			_, err := conn.WriteToUDP([]byte("end"), remote)
 			p.handle(err, "end送信")

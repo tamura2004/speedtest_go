@@ -50,7 +50,7 @@ func (p *parm) connect() {
 		// 終了電文受信まで1KBづつ転送
 		for {
 			n, err := conn.Read(buf)
-			p.handle(err, "1KB受信")
+			p.handle(err, "")
 			if string(buf[:n]) == "end" {
 				break
 			}
