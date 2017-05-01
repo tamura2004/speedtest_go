@@ -1,4 +1,3 @@
-// flag
 package main
 
 import (
@@ -30,4 +29,19 @@ func (p *parm) init() {
 	flag.StringVar(&p.file, "f", "text.log", "ログファイル名")
 	flag.StringVar(&p.csv, "v", "record.csv", "ログファイル名")
 	flag.Parse()
+}
+
+func main() {
+	// 起動オプションの初期化
+	var p parm
+	p.init()
+
+	// 起動オプションによりサーバまたはクライアントとして起動
+	if p.isServer {
+		p.server()
+	} else if p.isClient {
+		p.client()
+	} else {
+		panic("-s オプションか -c オプションを指定して下さい")
+	}
 }

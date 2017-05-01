@@ -1,4 +1,3 @@
-// benchmark
 package main
 
 import (

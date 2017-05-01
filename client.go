@@ -1,9 +1,7 @@
-// client
 package main
 
 import (
 	"fmt"
-	//"io/ioutil"
 	"net"
 	"time"
 )
